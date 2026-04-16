@@ -8,14 +8,31 @@ const state = {
 
 const getters = {
     todoList: (state) => state.todoList,
-    selectedTodo: (state) => state.selectedTodo
+    selectedTodo: (state) => state.selectedTodo,
+    categoryCounts: (state) => {
+        const counts = { 'Health': 0, 'Work': 0, 'Mental Health': 0, 'Others': 0 };
+        state.todoList.forEach(todo => {
+            if (counts[todo.category] !== undefined && !todo.completed) {
+                counts[todo.category]++;
+            } else if (todo.category && !todo.completed) {
+                counts['Others']++;
+            }
+        });
+        return counts;
+    }
 };
-
 
 const mutations = {
     NEW_TODO(state, data) {
         state.lastId++;
         data.id = state.lastId;
+        if(!data.createdAt) {
+            data.createdAt = new Date().toISOString();
+        }
+        if(!data.time) {
+            const now = new Date();
+            data.time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        }
         state.todoList.unshift(data);
     },
     UPDATE_TODO(state, data) {

@@ -1,38 +1,42 @@
 <template>
-  <form class="mb-5 mt-4" @submit.prevent="saveTodo">
-    <div class="row g-2 align-items-center">
-      <div class="col-md-6">
-        <input
-          type="text"
-          class="form-control form-control-lg"
-          v-model="selectedTodoValue"
-          required
-          placeholder="Add new task..."
-          autofocus
-        />
-      </div>
-      <div class="col-md-3">
-        <select
-          v-model="selectedTodoCategory"
-          class="form-select form-select-lg"
-          required
-          aria-label="Select category"
-        >
-          <option disabled value="">Select category</option>
-          <option>Work</option>
-          <option>Study</option>
-          <option>Personal</option>
-        </select>
-      </div>
-      <div class="col-md-3 d-grid">
-        <button
-          type="submit"
-          class="btn btn-primary btn-lg"
-          :class="selectedTodoId !== 0 ? 'btn-warning' : 'btn-primary'"
-        >
-          {{ selectedTodoId !== 0 ? "Edit Task" : "Add Task" }}
-        </button>
-      </div>
+  <form class="input-container" @submit.prevent="saveTodo">
+    <div class="d-flex gap-2 w-100 align-items-center">
+      <input
+        type="text"
+        class="form-control custom-input flex-grow-1"
+        v-model="selectedTodoValue"
+        required
+        placeholder="Add new task..."
+        autofocus
+      />
+      <select
+        v-model="selectedTodoCategory"
+        class="form-select custom-select"
+        style="width: 140px;"
+        required
+        aria-label="Select category"
+      >
+        <option disabled value="">Category</option>
+        <option>Health</option>
+        <option>Work</option>
+        <option>Mental Health</option>
+        <option>Others</option>
+      </select>
+      <input
+        type="time"
+        class="form-control custom-input"
+        v-model="selectedTodoTime"
+        style="width: 110px;"
+        required
+        aria-label="Select time"
+      />
+      <button
+        type="submit"
+        class="btn custom-btn"
+        :class="selectedTodoId !== 0 ? 'custom-btn-warning' : ''"
+      >
+        {{ selectedTodoId !== 0 ? "Edit" : "Add" }}
+      </button>
     </div>
   </form>
 </template>
@@ -47,6 +51,7 @@ export default {
       selectedTodoValue: null,
       selectedTodoCompleted: false,
       selectedTodoCategory: "",
+      selectedTodoTime: "",
     };
   },
 
@@ -60,11 +65,12 @@ export default {
       this.selectedTodoValue = newValue ? newValue.value : null;
       this.selectedTodoCompleted = newValue ? newValue.completed : false;
       this.selectedTodoCategory = newValue ? newValue.category : "";
+      this.selectedTodoTime = newValue ? newValue.time : "";
     },
   },
 
   methods: {
-    ...mapActions(["newTodo", "updateTodo", "selectedTodo"]),
+    ...mapActions(["newTodo", "updateTodo", "selectedTodoAction"]),
 
     saveTodo() {
       if (this.selectedTodoId === 0) {
@@ -72,9 +78,12 @@ export default {
           value: this.selectedTodoValue,
           completed: false,
           category: this.selectedTodoCategory,
+          time: this.selectedTodoTime,
+          createdAt: new Date().toISOString(),
         }).then(() => {
           this.selectedTodoValue = null;
           this.selectedTodoCategory = "";
+          this.selectedTodoTime = "";
         });
       } else {
         this.updateTodo({
@@ -82,12 +91,14 @@ export default {
           value: this.selectedTodoValue,
           completed: this.selectedTodoCompleted,
           category: this.selectedTodoCategory,
+          time: this.selectedTodoTime,
         }).then(() => {
-          this.selectedTodo(null);
+          this.selectedTodoAction(null);
           this.selectedTodoId = 0;
           this.selectedTodoValue = null;
           this.selectedTodoCompleted = false;
           this.selectedTodoCategory = "";
+          this.selectedTodoTime = "";
         });
       }
     },
